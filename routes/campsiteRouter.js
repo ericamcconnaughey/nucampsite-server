@@ -1,25 +1,25 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const Campsite = require('../models/campsite');
+const Campsite = require('../models/campsite'); //Go up a directory & 
 
 const campsiteRouter = express.Router();
 
 campsiteRouter.use(bodyParser.json());
 
-campsiteRouter.route('/')
+campsiteRouter.route('/') // Url endpoint
 .get((req, res, next) => {
-  //find all campsites
-  Campsite.find()
+  //find all campsites via Mongoose find method
+  Campsite.find() // This will find all docs in collection Campsite; returns as a promise
   .then(campsites => {
     res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.json(campsites);
+    res.setHeader('Content-Type', 'application/json'); // tells the browser client what to expect; operating parameters of an HTTP operation
+    res.json(campsites); // returns promise as a JSON object
   })
   .catch(err => next(err));
 })
 .post((req, res, next) => {
   //add campsite from req
-  Campsite.create(req.body)
+  Campsite.create(req.body) // model used as template to create a JSON object from req.body
   .then(campsite => {
     console.log('Campsite Created', campsite);
     res.statusCode = 200;
@@ -44,7 +44,7 @@ campsiteRouter.route('/')
 });
 
 
-campsiteRouter.route('/:campsiteId')
+campsiteRouter.route('/:campsiteId') // URL Parameter (or route parameter)
 .get((req, res, next) => {
   //finds the req campsite by route parameter (part of url)
   Campsite.findById(req.params.campsiteId)
@@ -61,7 +61,7 @@ campsiteRouter.route('/:campsiteId')
 })
 .put((req, res, next) => {
   Campsite.findByIdAndUpdate(req.params.campsiteId, {
-      $set: req.body
+      $set: req.body // $ is an operand from mongoose?
   }, { new: true })
   .then(campsite => {
     res.statusCode = 200;
