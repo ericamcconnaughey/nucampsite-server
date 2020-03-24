@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const Campsite = require('../models/campsite'); //Go up a directory & 
+const Campsite = require('../models/campsite'); //Go up a directory
 
 const campsiteRouter = express.Router();
 
