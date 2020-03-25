@@ -4,6 +4,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 
 // Import Routes
 var indexRouter = require('./routes/index');
@@ -38,11 +40,22 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json()); // Grabs JSON object using Express
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser('12345-67890-09876-54321'));
+//app.use(cookieParser('12345-67890-09876-54321')); //cookieParser can conflict with express sessions
+
+//session middleware
+app.use(session({
+  name: 'session-id',
+  secret: '12345-67890-09876-54321',
+  saveUninitialized: false, // will not save empty sessions and no cookie will be sent
+  resave: false, // will not resave updates when not needed
+  store: new FileStore() //save to the server's hard disc
+}));
 
 //authenticate users before they can access any data
 function auth(req, res, next) {
-  if (!req.signedCookies.user) {
+  console.log(req.session);
+
+  if (!req.session.user) {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
       const err = new Error('You are not authenticated.');
@@ -55,7 +68,7 @@ function auth(req, res, next) {
     const user = auth[0];
     const pass = auth[1];
     if (user === 'admin' && pass === 'password') {
-      res.cookie('user', 'admin', {signed: true});
+      req.session.user = 'admin';
       return next(); //authorized
     } else {
       const err = new Error('You are not authenticated.');
@@ -64,11 +77,11 @@ function auth(req, res, next) {
       return next(err);
     }
   } else {
-    if (req.signedCookies.user === 'admin') {
+    if (req.session.user === 'admin') {
       return next();
     } else {
       const err = new Error('You are not authenticated.');
-      err.status = 401;
+      err.status = 401;    
       return next(err);
     }
   }
