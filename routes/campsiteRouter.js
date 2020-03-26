@@ -11,6 +11,7 @@ campsiteRouter.route('/') // Url endpoint
 .get((req, res, next) => {
   //find all campsites via Mongoose find method
   Campsite.find() // This will find all docs in collection Campsite; returns as a promise
+  .populate('comments.author') // Populate author field of comment subdocument, by finding the user doc that matches the objectid
   .then(campsites => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json'); // tells the browser client what to expect; operating parameters of an HTTP operation
@@ -49,6 +50,7 @@ campsiteRouter.route('/:campsiteId') // URL Parameter (or route parameter)
 .get((req, res, next) => {
   //finds the req campsite by route parameter (part of url)
   Campsite.findById(req.params.campsiteId)
+  .populate('comments.author')
   .then(campsite => {
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
@@ -85,6 +87,7 @@ campsiteRouter.route('/:campsiteId') // URL Parameter (or route parameter)
 campsiteRouter.route('/:campsiteId/comments')
 .get((req, res, next) => {
   Campsite.findById(req.params.campsiteId)
+  .populate('comments.author')
   .then(campsite => {
     if (campsite) {
       res.statusCode = 200;
@@ -102,6 +105,7 @@ campsiteRouter.route('/:campsiteId/comments')
   Campsite.findById(req.params.campsiteId)
   .then(campsite => {
     if (campsite) {
+      req.body.author = req.user._id; // grab id of author/user which will be used to populate author field
       //add comment to campsite
       campsite.comments.push(req.body);
       //save comment to mongodb server -- save is not static
@@ -152,6 +156,7 @@ campsiteRouter.route('/:campsiteId/comments')
 campsiteRouter.route('/:campsiteId/comments/:commentId')
 .get((req, res, next) => {
   Campsite.findById(req.params.campsiteId)
+  .populate('comments.author')
   .then(campsite => {
     if (campsite && campsite.comments.id(req.params.commentId)) {
       res.statusCode = 200;
