@@ -19,7 +19,7 @@ campsiteRouter.route('/') // Url endpoint
   })
   .catch(err => next(err));
 })
-.post(authenticate.verifyUser, (req, res, next) => {
+.post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
   //add campsite from req
   Campsite.create(req.body) // model used as template to create a JSON object from req.body
   .then(campsite => {
@@ -34,7 +34,7 @@ campsiteRouter.route('/') // Url endpoint
   res.statusCode = 403;
   res.end('PUT operation not supported on /campsites');
 })
-.delete(authenticate.verifyUser, (req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
   //dangerous and would want to check authorization before using
   Campsite.deleteMany()
   .then(response => {
@@ -62,7 +62,7 @@ campsiteRouter.route('/:campsiteId') // URL Parameter (or route parameter)
   res.statusCode = 403;
   res.end(`POST operation not supported on /campsites/${req.params.campsiteId}`);
 })
-.put(authenticate.verifyUser, (req, res, next) => {
+.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
   Campsite.findByIdAndUpdate(req.params.campsiteId, {
       $set: req.body // $ is an operand from mongoose?
   }, { new: true })
@@ -73,7 +73,7 @@ campsiteRouter.route('/:campsiteId') // URL Parameter (or route parameter)
   })
   .catch(err => next(err));
 })
-.delete(authenticate.verifyUser, (req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
   // also need to check authorization of user
   Campsite.findByIdAndDelete(req.params.campsiteId)
   .then(response => {
@@ -128,7 +128,7 @@ campsiteRouter.route('/:campsiteId/comments')
   res.statusCode = 403;
   res.end(`PUT operation not supported on /campsites/${req.params.campsiteId}/comments`);
 })
-.delete(authenticate.verifyUser, (req, res, next) => {
+.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
   Campsite.findById(req.params.campsiteId)
   .then(campsite => {
     if (campsite) {
