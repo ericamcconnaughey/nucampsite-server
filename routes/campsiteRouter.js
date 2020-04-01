@@ -64,7 +64,7 @@ campsiteRouter.route('/:campsiteId') // URL Parameter (or route parameter)
 })
 .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
   Campsite.findByIdAndUpdate(req.params.campsiteId, {
-      $set: req.body // $ is an operand from mongoose?
+      $set: req.body // $ is an operand from mongodb
   }, { new: true })
   .then(campsite => {
     res.statusCode = 200;

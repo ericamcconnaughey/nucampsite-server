@@ -37,6 +37,16 @@ connect.then(() => console.log('Connected correctly to server'),
 // Using Express middleware framework
 var app = express();
 
+//catch all incoming requests and redirect to HTTPS if needed
+app.all('*', (req, res, next) => {
+  if (req.secure) {
+    return next();
+  } else {
+    console.log(`Redirecting to: https://${req.hostname}:${app.get('secPort')}${req.url}`);
+    res.redirect(301, `https://${req.hostname}:${app.get('secPort')}${req.url}`);
+  }
+});
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -62,6 +72,7 @@ app.use(passport.initialize());
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
+//AUTHENTICATION PRIOR TO TOKENS
 //authenticate users before they can access any data
 // function auth(req, res, next) {
 //   console.log(req.user);
